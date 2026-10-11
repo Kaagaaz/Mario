@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#5c94fc">
+<title>Pixel Run — Browser Platformer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+:root{--ink:#182044;--cream:#fff5d8;--blue:#5c94fc;--panel:#fff8e6;--red:#e64b3c;--gold:#ffcf4a}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#5c94fc;color:var(--ink);font-family:"Press Start 2P",monospace;image-rendering:pixelated}
+body{touch-action:none}
+#game{position:fixed;inset:0;width:100vw;height:100dvh;display:block;image-rendering:pixelated;outline:none}
+#hud{position:fixed;z-index:3;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;padding:clamp(12px,2.2vw,28px);pointer-events:none;color:white;text-shadow:3px 3px 0 #24315e;font-size:clamp(8px,1.1vw,13px);line-height:1.8}
+.hud-group{display:flex;gap:clamp(14px,3vw,38px);align-items:flex-start}
+.hud-item{white-space:nowrap}
+#soundBtn,#pauseBtn{pointer-events:auto;cursor:pointer;border:3px solid #24315e;background:var(--cream);color:var(--ink);padding:10px;font:inherit;font-size:10px;box-shadow:4px 4px 0 #24315e}
+#soundBtn:active,#pauseBtn:active,.pixel-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #24315e}
+#overlay{position:fixed;z-index:10;inset:0;display:grid;place-items:center;padding:18px;background:rgba(15,25,61,.58)}
+.panel{width:min(560px,100%);max-height:92dvh;overflow:auto;background:var(--panel);border:4px solid #24315e;box-shadow:8px 8px 0 rgba(17,29,67,.65);padding:clamp(20px,5vw,36px);text-align:center}
+.logo{font-size:clamp(19px,4vw,30px);line-height:1.6;margin:0 0 14px;color:#e64b3c;text-shadow:3px 3px 0 #ffd65a}
+.sub{font-size:9px;line-height:2;color:#48517a;margin:0 auto 24px;max-width:420px}
+.pixel-btn{display:block;width:100%;margin:12px 0;padding:17px 12px;border:3px solid #24315e;background:#ffcf4a;color:#182044;box-shadow:4px 4px 0 #24315e;font:inherit;font-size:10px;line-height:1.8;cursor:pointer}
+.pixel-btn.secondary{background:#d8e7ff}
+.pixel-btn.green{background:#78df9c}
+#tutorial{display:none;text-align:left}
+#tutorial h2{font-size:13px;line-height:1.8;text-align:center}
+#tutorial p,#tutorial li{font-size:9px;line-height:2.2}
+#tutorial ul{padding-left:22px}
+.key{display:inline-block;padding:5px 7px;border:2px solid #24315e;background:white;box-shadow:2px 2px 0 #24315e;margin:2px;font-size:9px}
+#toast{position:fixed;z-index:4;left:50%;top:20%;transform:translateX(-50%);display:none;background:#fff8e6;border:3px solid #24315e;padding:12px 16px;font-size:9px;line-height:1.8;text-align:center;box-shadow:4px 4px 0 #24315e}
+#touchControls{position:fixed;z-index:5;inset:auto 0 max(18px,env(safe-area-inset-bottom)) 0;display:none;justify-content:space-between;align-items:flex-end;padding:0 18px;pointer-events:none}
+.touch-cluster{display:flex;gap:10px;pointer-events:auto}
+.touch-btn{width:clamp(56px,12vw,78px);height:clamp(56px,12vw,78px);border:3px solid #24315e;background:rgba(255,248,230,.9);color:#182044;box-shadow:4px 4px 0 #24315e;font:inherit;font-size:13px;display:grid;place-items:center;user-select:none;-webkit-user-select:none;touch-action:none}
+.touch-btn.jump{width:clamp(68px,15vw,92px);height:clamp(68px,15vw,92px);background:rgba(255,207,74,.95)}
+#mobileHint{display:none;position:fixed;z-index:4;bottom:112px;left:0;right:0;text-align:center;color:#fff;font-size:8px;text-shadow:2px 2px #24315e;pointer-events:none}
+@media (pointer:coarse){#touchControls.active{display:flex}#mobileHint.active{display:block}}
+@media(max-width:560px){#hud{font-size:8px}.hud-group{gap:10px}#soundBtn,#pauseBtn{font-size:8px;padding:8px}.panel{padding:22px 18px}.sub{font-size:8px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="Pixel Run platform game"></canvas>
+<div id="hud">
+  <div class="hud-group"><div class="hud-item">PIXEL RUN<br><span id="world">WORLD 1-1</span></div><div class="hud-item">COINS<br><span id="coins">00</span></div></div>
+  <div class="hud-group"><div class="hud-item">LIVES<br><span id="lives">♥ ♥ ♥</span></div><button id="pauseBtn" aria-label="Pause game">Ⅱ</button></div>
+</div>
+<div id="toast"></div>
+<div id="touchControls">
+  <div class="touch-cluster">
+    <button class="touch-btn" data-control="left" aria-label="Move left">◀</button>
+    <button class="touch-btn" data-control="right" aria-label="Move right">▶</button>
+  </div>
+  <div class="touch-cluster"><button class="touch-btn jump" data-control="jump" aria-label="Jump">A</button></div>
+</div>
+<div id="mobileHint">HOLD ◀ / ▶ TO MOVE · TAP A TO JUMP</div>
+<div id="overlay">
+  <section class="panel" id="choose">
+    <h1 class="logo">PIXEL RUN</h1>
+    <p class="sub">A tiny, full-screen pixel platform adventure.<br>Choose how you want to play.</p>
+    <button class="pixel-btn" id="keyboardChoice">PLAY WITH KEYBOARD</button>
+    <button class="pixel-btn secondary" id="touchChoice">PLAY WITH ON-SCREEN BUTTONS</button>
+    <p class="sub" style="margin:20px 0 0;font-size:7px">Original pixel art · No downloads · Runs in your browser</p>
+  </section>
+  <section class="panel" id="tutorial" style="display:none">
+    <h2>HOW TO PLAY</h2>
+    <p>Move across the level, collect coins, jump over gaps and reach the flag.</p>
+    <ul>
+      <li><span class="key">←</span> <span class="key">→</span> or <span class="key">A</span> <span class="key">D</span> — Move</li>
+      <li><span class="key">SPACE</span> / <span class="key">↑</span> / <span class="key">W</span> — Jump</li>
+      <li><span class="key">P</span> or <span class="key">ESC</span> — Pause</li>
+    </ul>
+    <p>Tip: hold a direction to run. You can jump while moving.</p>
+    <button class="pixel-btn green" id="startKeyboard">LET'S PLAY!</button>
+  </section>
+  <section class="panel" id="pausePanel" style="display:none">
+    <h2>PAUSED</h2><p class="sub">Take a breather. Your progress is waiting.</p>
+    <button class="pixel-btn green" id="resumeBtn">RESUME</button>
+    <button class="pixel-btn secondary" id="restartBtn">RESTART LEVEL</button>
+  </section>
+  <section class="panel" id="winPanel" style="display:none">
+    <h2 class="logo">LEVEL CLEAR!</h2><p class="sub">Nice run! You reached the flag.</p>
+    <button class="pixel-btn green" id="playAgain">PLAY AGAIN</button>
+  </section>
+</div>
+<script>
+(() => {
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false});
+ctx.imageSmoothingEnabled=false;
+const overlay=document.getElementById('overlay'), choose=document.getElementById('choose'), tutorial=document.getElementById('tutorial'), pausePanel=document.getElementById('pausePanel'), winPanel=document.getElementById('winPanel');
+const coinLabel=document.getElementById('coins'), livesLabel=document.getElementById('lives'), touchControls=document.getElementById('touchControls'), mobileHint=document.getElementById('mobileHint');
+let W=320,H=180,scale=1,dpr=1,last=0,started=false,paused=true,mode='keyboard',won=false;
+const keys={left:false,right:false,jump:false};
+const TILE=16, LEVEL_W=2400, GROUND_Y=142;
+let camera=0,coins=0,lives=3,worldCoins=[],particles=[],enemies=[],platforms=[],flagX=2300;
+const player={x:28,y:GROUND_Y-24,w:13,h:24,vx:0,vy:0,onGround:false,face:1,walk:0,invuln:0};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  const vw=innerWidth,vh=innerHeight;
+  // Internal canvas stays pixel-based; CSS fills the entire viewport.
+  W=320;H=Math.max(180,Math.round(320*vh/vw));
+  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=vw+'px';canvas.style.height=vh+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=false;
+}
+addEventListener('resize',resize);resize();
+function resetLevel(){
+  camera=0;coins=0;lives=3;won=false;
+  player.x=28;player.y=GROUND_Y-player.h;player.vx=0;player.vy=0;player.onGround=false;player.face=1;player.walk=0;player.invuln=0;
+  platforms=[
+    {x:180,y:112,w:48,h:12},{x:330,y:94,w:48,h:12},{x:500,y:112,w:64,h:12},
+    {x:690,y:96,w:48,h:12},{x:850,y:112,w:64,h:12},{x:1030,y:88,w:64,h:12},
+    {x:1220,y:110,w:48,h:12},{x:1400,y:94,w:64,h:12},{x:1600,y:110,w:64,h:12},
+    {x:1790,y:92,w:48,h:12},{x:1980,y:110,w:64,h:12},{x:2150,y:96,w:64,h:12}
+  ];
+  worldCoins=[];
+  [110,198,214,350,365,520,540,710,875,890,1050,1070,1240,1420,1440,1620,1810,2000,2020,2170,2190].forEach((x,i)=>worldCoins.push({x,y:(i%3===0?88:GROUND_Y-34),got:false,phase:i}));
+  enemies=[{x:270,y:GROUND_Y-13,w:14,h:13,vx:-.45,alive:true,min:245,max:305},{x:610,y:GROUND_Y-13,w:14,h:13,vx:.5,alive:true,min:590,max:650},{x:930,y:GROUND_Y-13,w:14,h:13,vx:-.55,alive:true,min:900,max:970},{x:1510,y:GROUND_Y-13,w:14,h:13,vx:.5,alive:true,min:1480,max:1550},{x:1900,y:GROUND_Y-13,w:14,h:13,vx:-.55,alive:true,min:1870,max:1940}];
+  updateHud();
+}
+function updateHud(){coinLabel.textContent=String(coins).padStart(2,'0');livesLabel.textContent='♥ '.repeat(lives).trim()||'—'}
+function showPanel(which){overlay.style.display='grid';choose.style.display='none';tutorial.style.display='none';pausePanel.style.display='none';winPanel.style.display='none';which.style.display='block'}
+function hidePanels(){overlay.style.display='none'}
+function startGame(selected,showTutorial){
+  mode=selected;started=true;paused=!!showTutorial;touchControls.classList.toggle('active',mode==='touch');mobileHint.classList.toggle('active',mode==='touch');
+  if(showTutorial)showPanel(tutorial);else{hidePanels();paused=false;canvas.focus?.()}
+}
+document.getElementById('keyboardChoice').onclick=()=>startGame('keyboard',true);
+document.getElementById('touchChoice').onclick=()=>startGame('touch',false);
+document.getElementById('startKeyboard').onclick=()=>{hidePanels();paused=false};
+document.getElementById('pauseBtn').onclick=()=>{if(!started)return;togglePause()};
+document.getElementById('resumeBtn').onclick=()=>{paused=false;hidePanels()};
+document.getElementById('restartBtn').onclick=()=>{resetLevel();paused=false;hidePanels()};
+document.getElementById('playAgain').onclick=()=>{resetLevel();paused=false;hidePanels()};
+function togglePause(){paused=!paused;if(paused)showPanel(pausePanel);else hidePanels()}
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(['arrowleft','arrowright','arrowup',' ','arrowdown'].includes(k))e.preventDefault();
+  if((k==='p'||k==='escape')&&started){togglePause();return}
+  if(k==='arrowleft'||k==='a')keys.left=true;
+  if(k==='arrowright'||k==='d')keys.right=true;
+  if(k==='arrowup'||k==='w'||k===' ')keys.jump=true;
+});
+addEventListener('keyup',e=>{
+  const k=e.key.toLowerCase();
+  if(k==='arrowleft'||k==='a')keys.left=false;
+  if(k==='arrowright'||k==='d')keys.right=false;
+  if(k==='arrowup'||k==='w'||k===' ')keys.jump=false;
+});
+addEventListener('blur',()=>{keys.left=keys.right=keys.jump=false});
+document.querySelectorAll('[data-control]').forEach(btn=>{
+  const key=btn.dataset.control;
+  const set=(v,e)=>{if(e)e.preventDefault();keys[key]=v};
+  btn.addEventListener('pointerdown',e=>{btn.setPointerCapture?.(e.pointerId);set(true,e)});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>btn.addEventListener(type,e=>set(false,e)));
+});
+function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function drawCloud(x,y,s=1){rect(x,y+4*s,22*s,7*s,'#fff');rect(x+5*s,y,9*s,8*s,'#fff');rect(x+13*s,y+2*s,8*s,6*s,'#fff')}
+function drawHill(x,y,w,h){rect(x+w*.25,y,w*.5,h,'#68c66b');rect(x+w*.12,y+h*.25,w*.76,h*.75,'#68c66b');rect(x,y+h*.55,w,h*.45,'#68c66b');rect(x+w*.25,y+h*.5,w*.5,h*.5,'#68c66b');rect(x+w*.38,y+h*.25,w*.12,h*.15,'#9ce477');rect(x+w*.55,y+h*.5,w*.12,h*.15,'#9ce477')}
+function drawBackground(){
+  rect(0,0,W,H,'#5c94fc');
+  // Distant parallax scenery
+  for(let i=0;i<7;i++){let x=((i*73-camera*.15)%(W+90)+W+90)%(W+90)-45;drawCloud(x,20+(i%3)*16,.8+(i%2)*.2)}
+  for(let i=0;i<6;i++){let x=((i*100-camera*.25)%(W+100)+W+100)%(W+100)-40;drawHill(x,GROUND_Y-34-(i%2)*7,54,34)}
+  // Ground tiles
+  rect(0,GROUND_Y,W,H-GROUND_Y,'#c88746');rect(0,GROUND_Y,W,5,'#70c84a');rect(0,GROUND_Y+5,W,3,'#398d38');
+  for(let x=-(camera%16);x<W;x+=16){rect(x,GROUND_Y+8,1,H-GROUND_Y,'#9b633b');rect(x+4,GROUND_Y+15,5,2,'#a96c3d');rect(x+10,GROUND_Y+29,4,2,'#a96c3d')}
+}
+function drawBlock(x,y,w=16,h=16){
+  rect(x,y,w,h,'#d98a38');rect(x+1,y+1,w-2,h-2,'#f7ba57');rect(x+2,y+2,w-4,2,'#ffe39a');rect(x+2,y+h-3,w-4,2,'#a95d2c');
+  for(let bx=x+4;bx<x+w-2;bx+=6)rect(bx,y+5,2,2,'#c47a31');
+}
+function drawPlatforms(){
+  for(const p of platforms){const x=p.x-camera;if(x+p.w<0||x>W)continue;drawBlock(x,p.y,p.w,p.h);rect(x,p.y,p.w,3,'#ffe39a')}
+  // Gaps in the ground
+  for(const [a,b] of [[390,430],[760,805],[1120,1160],[1320,1365],[1710,1755],[2070,2110]]){
+    const x=a-camera;if(x<W&&x+(b-a)>0){rect(x,GROUND_Y,W>0?b-a:0,H-GROUND_Y,'#5c94fc');rect(x,GROUND_Y,b-a,3,'#398d38')}
+  }
+  // Question-style bonus blocks, original design
+  [250,570,970,1160,1550,1850].forEach((wx,i)=>{let x=wx-camera;if(x>-16&&x<W)drawBonus(x,72+(i%2)*8,i)});
+}
+function drawBonus(x,y,i){rect(x,y,16,16,'#8c5ae8');rect(x+2,y+2,12,12,'#c4a1ff');rect(x+6,y+4,4,7,'#fff');rect(x+6,y+12,4,2,'#fff');}
+function drawCoin(c,t){if(c.got)return;const x=Math.round(c.x-camera),y=Math.round(c.y+Math.sin(t*.006+c.phase)*2);if(x<-10||x>W+10)return;rect(x+3,y,4,2,'#fff0a2');rect(x+1,y+2,8,9,'#ffbf28');rect(x+3,y+3,4,7,'#fff078');rect(x+4,y+5,2,3,'#e98c21')}
+function drawEnemy(e){if(!e.alive)return;const x=Math.round(e.x-camera),y=Math.round(e.y);if(x<-20||x>W+20)return;rect(x+2,y+4,10,7,'#9b4a2e');rect(x+1,y+7,12,4,'#b9673d');rect(x+3,y+2,8,4,'#c77c48');rect(x+3,y+6,2,3,'#fff');rect(x+9,y+6,2,3,'#fff');rect(x+4,y+7,1,2,'#182044');rect(x+10,y+7,1,2,'#182044');rect(x+1,y+11,4,2,'#663c38');rect(x+9,y+11,4,2,'#663c38')}
+function drawPlayer(){
+  const x=Math.round(player.x-camera),y=Math.round(player.y);
+  if(player.invuln>0&&Math.floor(performance.now()/90)%2===0)return;
+  ctx.save(); if(player.face<0){ctx.translate(x+player.w,0);ctx.scale(-1,1);ctx.translate(-x,0)}
+  // Original side-facing pixel adventurer. Walk frames only advance while moving.
+  const moving=Math.abs(player.vx)>.25&&player.onGround;
+  const frame=moving?Math.floor(player.walk/7)%2:0;
+  // shadow
+  rect(x+1,player.y+player.h-1,12,2,'#417aaf');
+  // cap + head, side profile facing right
+  rect(x+2,y+1,8,3,'#b62f32');rect(x+1,y+3,11,3,'#e64b3c');rect(x+8,y+4,5,3,'#e64b3c');
+  rect(x+3,y+5,8,6,'#f5bd87');rect(x+8,y+6,4,3,'#f5bd87');rect(x+10,y+7,2,2,'#182044');rect(x+7,y+9,4,1,'#b46d50');
+  // shirt and backpack strap
+  rect(x+2,y+11,9,6,'#2678d7');rect(x+1,y+12,3,5,'#2678d7');rect(x+4,y+12,2,4,'#ffcf4a');
+  // arms
+  rect(x+9,y+12,3,4,'#f5bd87');rect(x+10,y+15,3,2,'#f5bd87');
+  // legs: perfectly still when idle; two clear walk poses while moving
+  if(frame===0){rect(x+3,y+17,3,4,'#7c3f2c');rect(x+7,y+17,3,4,'#7c3f2c');rect(x+2,y+21,4,3,'#553c53');rect(x+7,y+21,5,3,'#553c53')}
+  else{rect(x+3,y+17,3,5,'#7c3f2c');rect(x+7,y+17,3,3,'#7c3f2c');rect(x+1,y+21,5,3,'#553c53');rect(x+8,y+20,5,3,'#553c53')}
+  ctx.restore();
+}
+function drawFlag(){const x=flagX-camera;rect(x,64,3,GROUND_Y-64,'#f4f2d5');rect(x+3,65,18,11,'#ffcf4a');rect(x+3,76,12,5,'#e64b3c');rect(x-3,GROUND_Y-3,15,3,'#f4f2d5')}
+function collides(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function solidRects(){
+  const gaps=[[390,430],[760,805],[1120,1160],[1320,1365],[1710,1755],[2070,2110]];
+  const solids=[];let start=0;
+  for(const [a,b] of gaps){if(a>start)solids.push({x:start,y:GROUND_Y,w:a-start,h:200});start=b}
+  if(start<LEVEL_W)solids.push({x:start,y:GROUND_Y,w:LEVEL_W-start,h:200});
+  return [...solids,...platforms];
+}
+function update(dt,t){
+  if(!started||paused||won)return;
+  const step=dt/16.67;
+  const accel=.48, max=2.5;
+  if(keys.left){player.vx=Math.max(-max,player.vx-accel*step);player.face=-1}
+  else if(keys.right){player.vx=Math.min(max,player.vx+accel*step);player.face=1}
+  else player.vx*=Math.pow(.72,step);
+  if(Math.abs(player.vx)<.06)player.vx=0;
+  if(keys.jump&&player.onGround){player.vy=-6.7;player.onGround=false}
+  player.vy=Math.min(7.5,player.vy+.32*step);
+  const oldY=player.y;player.x+=player.vx*step;player.x=clamp(player.x,0,LEVEL_W-player.w);
+  player.y+=player.vy*step;player.onGround=false;
+  const solids=solidRects();
+  for(const s of solids){
+    if(player.x+player.w>s.x&&player.x<s.x+s.w){
+      if(oldY+player.h<=s.y&&player.y+player.h>=s.y&&player.vy>=0){player.y=s.y-player.h;player.vy=0;player.onGround=true}
+      else if(oldY>=s.y+s.h&&player.y<s.y+s.h&&player.vy<0){player.y=s.y+s.h;player.vy=0}
+    }
+  }
+  // Ground gaps: fall through if above one
+  const gaps=[[390,430],[760,805],[1120,1160],[1320,1365],[1710,1755],[2070,2110]];
+  const inGap=gaps.some(([a,b])=>player.x+player.w>a&&player.x<b);
+  if(!inGap&&player.y+player.h>=GROUND_Y&&player.vy>=0){player.y=GROUND_Y-player.h;player.vy=0;player.onGround=true}
+  if(player.y>H+60){loseLife()}
+  player.walk+=Math.abs(player.vx)*step;
+  if(player.invuln>0)player.invuln-=dt;
+  for(const c of worldCoins){if(!c.got&&Math.abs((player.x+player.w/2)-c.x)<13&&Math.abs((player.y+player.h/2)-c.y)<17){c.got=true;coins++;updateHud()}}
+  for(const e of enemies){
+    if(!e.alive)continue;e.x+=e.vx*step;if(e.x<e.min||e.x>e.max)e.vx*=-1;
+    if(collides(player,e)){
+      if(player.vy>1&&oldY+player.h<=e.y+5){e.alive=false;player.vy=-4.2}
+      else if(player.invuln<=0)loseLife();
+    }
+  }
+  camera=clamp(player.x-W*.36,0,LEVEL_W-W);
+  if(player.x+player.w>=flagX){won=true;paused=true;showPanel(winPanel)}
+}
+function loseLife(){if(player.invuln>0)return;lives--;updateHud();player.invuln=1300;player.vy=-3.5;if(lives<=0){resetLevel();showToast('TRY AGAIN! LEVEL RESET');}}
+let toastTimer=0;function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.display='none',1600)}
+function render(t){
+  drawBackground();
+  // Clip the level area and draw world items.
+  drawPlatforms();worldCoins.forEach(c=>drawCoin(c,t));enemies.forEach(drawEnemy);drawFlag();drawPlayer();
+  // Pixel-perfect edge frame and subtle vignette-free HUD backing.
+  rect(0,H-2,W,2,'#24315e');
+}
+function loop(t){const dt=Math.min(40,t-(last||t));last=t;update(dt,t);render(t);requestAnimationFrame(loop)}
+resetLevel();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
