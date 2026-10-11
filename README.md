@@ -324,12 +324,6 @@ No. There are no analytics, no accounts and no network requests except loading t
 - A mute button and a volume setting.
 - Offline play by hosting the font file in the repository.
 
-## Credits and license
-
-- Font: **Press Start 2P** by CodeMan38, licensed under the SIL Open Font License and loaded from Google Fonts.
-- All game code, pixel art and sound effects in this project are original.
-
-Add a license of your choice (for example MIT) as a `LICENSE` file in the repository if you want others to know how they may use or modify the game.
 
 ### Disclaimer
 
