@@ -1,4 +1,4 @@
-# MARIO ON TEMU
+# MARIO FROM TEMU
 
 <img width="3200" height="1727" alt="1000070097" src="https://github.com/user-attachments/assets/3692feb1-88ce-4ff9-b11e-919a3b5a93df" />
 
@@ -11,7 +11,7 @@ An endless pixel-art platformer that runs entirely in the browser. The whole gam
 
 ## Overview
 
-MARIO ON TEMU is a side-scrolling platformer in the classic 8-bit style. You run to the right across an endless world of grass, bricks, golden platforms and mystery blocks, collecting coins and stomping enemies. There is no final level. The game starts slow and gentle, then speeds up and gets harder the further you go, until you run out of lives. Your goal is to beat your best score.
+MARIO FROM TEMU is a side-scrolling platformer in the classic 8-bit style. You run to the right across an endless world of grass, bricks, golden platforms and mystery blocks, collecting coins and stomping enemies. There is no final level. The game starts slow and gentle, then speeds up and gets harder the further you go, until you run out of lives. Your goal is to beat your best score.
 
 It is designed to work equally well on a desktop with a keyboard and on a phone or tablet with on-screen buttons, and it fills the whole screen on both.
 
