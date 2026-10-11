@@ -23,7 +23,6 @@ An endless pixel-art platformer that runs entirely in the browser. The whole gam
 13. [Troubleshooting](#troubleshooting)
 14. [FAQ](#faq)
 15. [Ideas for future versions](#ideas-for-future-versions)
-16. [Credits and license](#credits-and-license)
 
 ---
 
