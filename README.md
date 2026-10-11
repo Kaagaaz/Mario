@@ -1,30 +1,13 @@
 # MARIO ON TEMU
 
+<img width="3200" height="1727" alt="1000070097" src="https://github.com/user-attachments/assets/3692feb1-88ce-4ff9-b11e-919a3b5a93df" />
+
 An endless pixel-art platformer that runs entirely in the browser. The whole game is **one `index.html` file**: no build step, no framework, no image files and no audio files. Every sprite and tile is drawn from pixel data in code, and every sound is generated live.
 
 
 
 ---
 
-## Table of contents
-
-1. [Overview](#overview)
-2. [Features](#features)
-3. [How to play](#how-to-play)
-4. [Controls](#controls)
-5. [Game rules in detail](#game-rules-in-detail)
-6. [Difficulty and speed ramp](#difficulty-and-speed-ramp)
-7. [Run it locally](#run-it-locally)
-8. [Publish on GitHub Pages](#publish-on-github-pages)
-9. [Project structure](#project-structure)
-10. [How the code works](#how-the-code-works)
-11. [Customize the game](#customize-the-game)
-12. [Browser and device support](#browser-and-device-support)
-13. [Troubleshooting](#troubleshooting)
-14. [FAQ](#faq)
-15. [Ideas for future versions](#ideas-for-future-versions)
-
----
 
 ## Overview
 
@@ -143,43 +126,8 @@ Some details:
 - Running faster also adds a small bonus to jump strength, so long gaps stay jumpable at high speed.
 - The first stretch of ground (about 16 tiles) is always flat and enemy-free, so you can get comfortable.
 
-## Run it locally
 
-The simplest way is to double-click `index.html` and open it in a browser.
 
-To serve it properly from a local web server instead:
-
-```bash
-# from the folder that contains index.html
-python3 -m http.server 8000
-# then open http://localhost:8000
-```
-
-Any static file server works (`npx serve`, VS Code Live Server, and so on).
-
-The pixel font is loaded from Google Fonts, so you need an internet connection to see it. Without a connection the game still works, but text falls back to a plain monospace font.
-
-## Publish on GitHub Pages
-
-1. **Create a repository** on GitHub (for example `pixel-run`). Public repositories work with the free plan.
-2. **Upload the files.** Add `index.html` and `README.md` to the root of the repository. You can drag and drop them in the GitHub web page, or use git:
-   ```bash
-   git init
-   git add index.html README.md
-   git commit -m "Add MARIO ON TEMU"
-   git branch -M main
-   git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPO.git
-   git push -u origin main
-   ```
-3. **Turn on Pages.** Go to **Settings → Pages**.
-4. Under **Build and deployment**, set **Source** to **Deploy from a branch**, choose the `main` branch and the `/ (root)` folder, then click **Save**.
-5. **Wait a minute or two.** Your game will be live at `https://YOUR-USERNAME.github.io/YOUR-REPO/`. The Pages settings screen shows the exact link once it is ready.
-
-Notes:
-- The file must be named exactly `index.html` and sit in the root so the site opens without a long path.
-- To update the game later, upload a new `index.html` (or push a commit). Pages redeploys automatically. If you do not see changes, do a hard refresh (`Ctrl+Shift+R`, or `Cmd+Shift+R` on a Mac).
-- If your repository is named `YOUR-USERNAME.github.io`, the game is served from the root address `https://YOUR-USERNAME.github.io/` instead.
-- You can also use a custom domain under **Settings → Pages → Custom domain**.
 
 ## Project structure
 
