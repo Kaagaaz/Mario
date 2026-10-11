@@ -1,6 +1,6 @@
-# Pixel Run
+# MARIO BUT ON TEMU
 
-An endless pixel-art platformer that runs entirely in the browser. The whole game is **one `index.html` file**: no build step, no framework, no image files and no audio files. Every sprite and tile is drawn from pixel data in code, and every sound is generated live.
+An endless super mario bros that runs entirely in the browser. The whole game is **one `index.html` file**: no build step, no framework, no image files and no audio files. Every sprite and tile is drawn from pixel data in code, and every sound is generated live.
 
 **Play it:** `https://YOUR-USERNAME.github.io/YOUR-REPO/` (replace after you publish, see [Publish on GitHub Pages](#publish-on-github-pages))
 
