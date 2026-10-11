@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>MARIO ON TEMU - Browser Platformer</title>
+<title>Pixel Run - Browser Platformer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -70,7 +70,7 @@ body,button{font-family:'Press Start 2P',monospace;-webkit-font-smoothing:none;f
 <canvas id="game"></canvas>
 
 <div class="hud" id="hudL">
-  <div>MARIO ON TEMU<br><span id="wl">WORLD 1-1</span></div>
+  <div>PIXEL RUN<br><span id="wl">WORLD 1-1</span></div>
   <div>COINS<br><span id="co">00</span></div>
   <div>SCORE<br><span id="sc">000000</span></div>
 </div>
@@ -111,7 +111,8 @@ body,button{font-family:'Press Start 2P',monospace;-webkit-font-smoothing:none;f
     <h1>PAUSED</h1>
     <div class="stack">
       <button class="pbtn" id="bResume">RESUME</button>
-      <button class="pbtn cream" id="bMode">MODE</button>
+      <button class="pbtn cream" id="bFull">FULLSCREEN</button>
+      <button class="pbtn cream" id="bMode">CHANGE MODE</button>
     </div>
   </div>
 </div>
@@ -392,8 +393,7 @@ function resize(){
 function cloud(x,y){
   ctx.fillStyle='#ffffff';ctx.fillRect(x+4,y,20,4);ctx.fillRect(x,y+4,32,8);
 }
-glePause()};
-document.getElementById('resumeBtn').onclick=()=>{paused=false;hidePanels()};
+paused=false;hidePanels()};
 document.getElementById('restartBtn').onclick=()=>{resetLevel();paused=false;hidePanels()};
 document.getElementById('playAgain').onclick=()=>{resetLevel();paused=false;hidePanels()};
 function togglePause(){paused=!paused;if(paused)showPanel(pausePanel);else hidePanels()}
