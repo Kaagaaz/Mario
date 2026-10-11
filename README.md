@@ -29,7 +29,7 @@ An endless super mario bros that runs entirely in the browser. The whole game is
 
 ## Overview
 
-Pixel Run is a side-scrolling platformer in the classic 8-bit style. You run to the right across an endless world of grass, bricks, golden platforms and mystery blocks, collecting coins and stomping enemies. There is no final level. The game starts slow and gentle, then speeds up and gets harder the further you go, until you run out of lives. Your goal is to beat your best score.
+MARIO BUT ON TEMU is a side-scrolling platformer in the classic 8-bit style. You run to the right across an endless world of grass, bricks, golden platforms and mystery blocks, collecting coins and stomping enemies. There is no final level. The game starts slow and gentle, then speeds up and gets harder the further you go, until you run out of lives. Your goal is to beat your best score.
 
 It is designed to work equally well on a desktop with a keyboard and on a phone or tablet with on-screen buttons, and it fills the whole screen on both.
 
